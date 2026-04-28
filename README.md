@@ -3,7 +3,7 @@
 ## Overview
 This project focuses on building a 3D lung disease progression model using CT imaging data. The goal is to bridge the gap between 2D medical images and intuitive 3D visual understanding by mapping imaging-derived signals onto a reference lung model.
 
-The system simulates disease progression from **healthy → early → moderate → advanced stages** using an interactive visualisation slider.
+The system simulates disease progression from **healthy → early → moderate → advanced stages** using an interactive visualisation slider.- Interactive controls allow users to zoom in/out and rotate the 3D lung model for better inspection of disease progression from different angles.
 
 
 ## Dataset

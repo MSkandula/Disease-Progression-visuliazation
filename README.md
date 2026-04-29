@@ -5,6 +5,7 @@ This project focuses on building a 3D lung disease progression model using CT im
 
 The system simulates disease progression from **healthy → early → moderate → advanced stages** using an interactive visualisation slider.- Interactive controls allow users to zoom in/out and rotate the 3D lung model for better inspection of disease progression from different angles.
 
+To improve visual realism, Blender was initially explored for rendering and material enhancement. However, due to the complexity of its workflow and challenges in integrating Blender outputs with the Python-based pipeline, this approach was not pursued further at this stage. Instead, the project adopts a PyVista and Trimesh-based workflow, which provides better programmability, reproducibility, and seamless integration with the overall system.
 
 ## Dataset
 The current prototype uses CT image data from [Radiopaedia pulmonary fibrosis cases](https://radiopaedia.org/search?lang=gb&q=pulmonary+fibrosis&scope=cases)

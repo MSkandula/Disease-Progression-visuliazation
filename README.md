@@ -1,135 +1,207 @@
-# Lung Disease Progression Visualizer (Pulmonary fibrosis)
+# 🫁 Organ Disease Progression Visualiser
+> **CT-Driven 3D Lung Disease Progression — COMP8851 | Macquarie University 2026**
 
-## Overview
-This project focuses on building a 3D lung disease progression model using CT imaging data. The goal is to bridge the gap between 2D medical images and intuitive 3D visual understanding by mapping imaging-derived signals onto a reference lung model.
+---
 
-The system simulates disease progression from **healthy → early → moderate → advanced stages** using an interactive visualisation slider.- Interactive controls allow users to zoom in/out and rotate the 3D lung model for better inspection of disease progression from different angles.
+*Can you tell what stage this disease is at just from a CT scan?*
+*Most people can't. This system can — and it shows you exactly why.*
 
-To improve visual realism, Blender was initially explored for rendering and material enhancement. However, due to the complexity of its workflow and challenges in integrating Blender outputs with the Python-based pipeline, this approach was not pursued further at this stage. Instead, the project adopts a PyVista and Trimesh-based workflow, which provides better programmability, reproducibility, and seamless integration with the overall system.
+---
 
-## Dataset
-The current prototype uses CT image data from [Radiopaedia pulmonary fibrosis cases](https://radiopaedia.org/search?lang=gb&q=pulmonary+fibrosis&scope=cases)
+## What This Is
 
-- Total cases used as of now : 8 patient cases  
-- Data type: 2D CT scan images  
-- Each image is processed individually through the pipeline by inserting in the code one at a time and the results are stored
+A deterministic pipeline that processes real chest CT images and maps three 
+quantitative signals directly onto an anatomical 3D lung mesh.
 
-For each case, the following signals are extracted:
+| What goes in | What comes out |
+|---|---|
+| Any chest CT image (JPG or PNG) | Live 3D lung model at matched disease stage |
+| Severity — mean pixel intensity | Colour strength + structural deformation |
+| Texture — std deviation of pixels | Surface roughness of the mesh |
+| HDR — proportion of pixels > 0.6 | Lesion spread across the lung surface |
 
-- **Severity** (mean intensity)  
-- **Texture** (standard deviation)  
-- **High-Density Ratio (HDR)** (proportion of dense regions)  
+**Score = 0.65 × Severity + 0.20 × Texture + 0.15 × HDR**
 
-These signals are used to drive the 3D disease progression model.
+Range: `0.218` (near healthy) → `0.809` (advanced fibrosis)  
+Every number on screen came from a pixel in the CT image.  
+Every decision is logged. Every transformation is explained.
 
-| Case ID | Severity (Mean Intensity) | Texture (Std Dev) | High-Density Ratio (HDR) |
-|--------|----------------------------|-------------------|---------------------------|
-| Case A | 0.1661                     | 0.1711            | 0.0174                    |
-| Case B | 0.2050                     | 0.1721            | 0.0344                    |
-| Case C | 0.1961                     | 0.1674            | 0.0393                    |
-| Case D | 0.4603                     | 0.0932            | 0.0774                    |
-| Case E | 0.2713                     | 0.0745            | 0.0097                    |
-| Case F | 0.3070                     | 0.1209            | 0.0324                    |
-| Case G | 0.2772                     | 0.1357            | 0.0411                    |
-| Case H | 0.1970                     | 0.1242            | 0.0219                    |
+---
 
+## See It In Action
 
-## Work Completed As of today (Current Prototype)
+| Case 08 — Early Disease (score: 0.218) | Case 01 — Advanced Disease (score: 0.809) |
+|---|---|
+| <img width="620" alt="Case 08" src="https://github.com/user-attachments/assets/22d362a1-840b-4941-9d7f-c360ba42639e" /> | <img width="623" alt="Case 01" src="https://github.com/user-attachments/assets/c14b4e3d-86cb-49c5-b4d0-b7ced4ea724c" /> |
+| Near-healthy. Light pink. Smooth surface. Minimal deformation. | Deep fibrotic red. Volume loss. Strong deformation. HDR dominant. |
 
-### 1. CT Image Processing Pipeline
-- Grayscale conversion  
-- Gaussian smoothing (noise reduction)  
-- Otsu thresholding (lung segmentation)  
-- Connected component analysis  
-- Morphological operations (mask refinement)  
+---
 
-This produces a clean lung region mask.
+## All 8 Cases
 
+<img width="1512" alt="Case 1" src="https://github.com/user-attachments/assets/1ab91dd7-7a6c-4aac-b4a9-e21623a3c13f" />
+<img width="1512" alt="Case 2" src="https://github.com/user-attachments/assets/30451161-aae5-44c1-b9d7-4be1071b4ecb" />
+<img width="1512" alt="Case 3" src="https://github.com/user-attachments/assets/5075b20d-24d1-41b9-b2b7-3442af19e7ff" />
+<img width="1512" alt="Case 4" src="https://github.com/user-attachments/assets/19d05a5a-0403-439a-8dfc-d8940b3eef2e" />
+<img width="1512" alt="Case 5" src="https://github.com/user-attachments/assets/725163e9-3e53-4fda-802e-e54cc5c0416a" />
+<img width="1512" alt="Case 6" src="https://github.com/user-attachments/assets/5579d3f6-b1c5-4c05-b495-a4bc267f0c00" />
 
-### 2. Feature Extraction
-From the segmented lungs:
-- Severity → overall abnormality  
-- Texture → structural irregularity  
-- HDR → dense abnormal regions  
+---
 
-These provide interpretable disease indicators.
+## Run It
 
+```bash
+# Drop any CT image in and run
+python "Integrated Pipeline.py" case_01_image.jpg
 
-### 3. 3D Lung Model Integration
-- Reference lung mesh from Human Atlas API  
-- Signal-driven mapping instead of full reconstruction  
-- Spatial weighting (subpleural + basal emphasis)  
+# See the segmentation working live
+python "Integrated Pipeline.py" case_01_image.jpg --show_ct
 
+# Save the audit trail on exit
+python "Integrated Pipeline.py" case_01_image.jpg --save_audit
+```
 
-### 4. Disease Simulation
-- Gaussian-based lesion generation  
-- Region-aware disease spread  
-- Progressive intensity scaling
-- 
+> `lung_model.glb` must be in the same folder. PNG cases use `.png` extension.
 
-### 5. Structural Deformation
-Simulated effects include:
-- Volume loss (shrinkage)  
-- Pleural retraction  
-- Basal collapse  
-- Fibrotic surface roughness  
-- Mild asymmetry  
+---
 
+## How It Works
 
-### 6. Visualisation
-- Interactive slider (0 → 1 progression)  
-- Stage labels (Healthy → Advanced)  
-- Clinically-inspired colour mapping  
-- Realistic rendering using lighting and glossiness  
+```
+CT Image  ──▶  Segment Lungs  ──▶  Extract 3 Signals  ──▶  Score  ──▶  3D Mesh  ──▶  Explain  ──▶  Audit Log
+```
 
-<img width="452" height="293" alt="image" src="https://github.com/user-attachments/assets/53702c86-5194-49f2-ac5d-293f5f1ffefc" />
-<img width="452" height="293" alt="image" src="https://github.com/user-attachments/assets/00eea89e-70dd-41a6-81d5-494893c086c2" />
-<img width="452" height="293" alt="image" src="https://github.com/user-attachments/assets/8dd2909f-7325-4a1d-8ad8-290c06e21fc8" />
-<img width="452" height="293" alt="image" src="https://github.com/user-attachments/assets/72a10e22-32a1-4a04-b6e7-52be12fb7df2" />
-<img width="452" height="293" alt="image" src="https://github.com/user-attachments/assets/3d48026d-00b0-409a-8048-4caa1932ead3" />
-<img width="452" height="293" alt="image" src="https://github.com/user-attachments/assets/21aaf59b-a9f8-4e85-a511-02403ebe6729" />
+The pipeline extracts three numbers from each CT image:
 
+| Signal | What It Measures | Why It Matters |
+|--------|-----------------|----------------|
+| **Severity** | Mean pixel intensity | Overall tissue density and abnormality |
+| **Texture** | Standard deviation | Structural irregularity and heterogeneity |
+| **HDR** | Proportion of pixels > 0.6 | Dense lesion and fibrosis coverage |
 
+These combine into a weighted progression score:
 
+```
+Score = 0.65 × Severity + 0.20 × Texture + 0.15 × HDR
+```
 
+That score drives everything — colour, lesion spread, deformation, roughness.
 
+---
 
-## Current Results
-The prototype currently consists of two working components:
+## Results Across All 8 Cases
 
-- CT image processing and feature extraction pipeline  
-- 3D disease progression visualisation model  
+| Case | Severity | Texture | HDR | Score | Stage |
+|------|----------|---------|-----|-------|-------|
+| Case 01 | 0.4201 | 0.1568 | 0.1168 | **0.809** | 🔴 Advanced |
+| Case 02 | 0.3537 | 0.1556 | 0.0766 | **0.668** | 🟠 Moderate |
+| Case 03 | 0.3255 | 0.0985 | 0.0218 | **0.409** | 🟡 Early |
+| Case 04 | 0.4603 | 0.0932 | 0.0774 | **0.754** | 🔴 Advanced |
+| Case 05 | 0.2713 | 0.0745 | 0.0097 | **0.242** | 🟡 Early |
+| Case 06 | 0.3070 | 0.1209 | 0.0324 | **0.436** | 🟡 Early |
+| Case 07 | 0.2772 | 0.1357 | 0.0411 | **0.423** | 🟡 Early |
+| Case 08 | 0.1970 | 0.1242 | 0.0219 | **0.218** | 🟡 Early |
 
-The system is able to:
-- Extract disease-related signals (severity, texture, HDR) from CT images  
-- Simulate disease progression on a 3D lung model using an interactive slider  
+---
 
-However, the direct integration between CT-derived signals and the 3D model is still under development.
+## Clinical Accountability — The Audit Trail
 
+Every run with `--save_audit` produces a JSON file that records the full pipeline trail:
 
+```json
+{
+  "pipeline_stage": "1_CT_EXTRACTION",
+  "event_data": {
+    "severity": 0.4201,
+    "texture": 0.1568,
+    "hdr": 0.1168,
+    "lung_pixel_count": 7937
+  }
+},
+{
+  "pipeline_stage": "2_FEATURE_MAPPING",
+  "event_data": {
+    "progression_score": 0.809,
+    "weighting": "0.65*severity + 0.20*texture + 0.15*hdr"
+  }
+},
+{
+  "pipeline_stage": "3_STAGE_TRANSITION",
+  "event_data": {
+    "disease_stage": "Stage: Advanced Disease",
+    "lesion_radius_multiplier": 6.152,
+    "deformation_multiplier": 0.885
+  }
+},
+{
+  "pipeline_stage": "4_VERTEX_MODIFICATION",
+  "event_data": {
+    "affected_vertex_count": 264370,
+    "clinical_justification": "Vertex shifts represent fibrotic contraction, pleural surface indentation, and basal collapse — consistent with IPF morphology."
+  }
+}
+```
 
-## Limitations
-- Segmentation is sensitive to CT image quality  
-- No direct anatomical mapping from 2D CT to 3D mesh  
-- Current model uses signal-based approximation rather than full reconstruction  
+**8 cases. 8 audit logs. Every decision traceable.**
 
+---
 
-## Future Work
-- Integrate CT-derived signals directly into the 3D progression model (linking severity, texture, and HDR to deformation and colouring)
-- Categorise cases into discrete disease stages (Healthy, Early, Moderate, Advanced)  
-- Improve segmentation robustness  
-- Strengthen mapping between CT signals and deformation  
-- Enhance visual realism of the 3D model  
-- Integrate LLM for generating explanations of disease progression  
-- Support multiple CT slices for improved accuracy  
+## Development Journey
 
+This system was built incrementally — each script solving one problem before the next:
+
+| Script | What It Solved | When |
+|--------|---------------|------|
+| `ct_step3_lung_mask.py` | Getting data out of CT images | Preliminary |
+| `prototype.py` | Building the 3D simulation | Preliminary |
+| `ct_driven_visualizer.py` | Connecting CT data to 3D model | Post-preliminary |
+| `Keyboard_switching.py` | Switching between all 8 cases live | Post-preliminary |
+| `Integrated Pipeline.py` | One command, live extraction, full audit | **Final** |
+
+---
+
+## Project Structure
+
+```
+Disease Progression Visualization/
+│
+├── Integrated Pipeline.py       ← Run this
+├── ct_driven_visualizer.py
+├── Keyboard_switching.py
+├── prototype.py
+├── ct_step3_lung_mask.py
+├── progression_engine.py
+│
+├── lung_model.glb               ← Human Atlas reference mesh
+│
+├── case_01_image.jpg  ── case_08_image.jpg
+│
+└── audit_logs/
+    └── audit_log_case_XX_image_xxxx.json  (×8)
+```
+
+---
 
 ## Tech Stack
-- Python  
-- OpenCV  
-- NumPy  
-- PyVista  
-- Trimesh  
 
+`Python` `OpenCV` `NumPy` `PyVista` `Trimesh` `Matplotlib`
 
-🚧 Work in progress – Currently working on the preliminary prototype and other requireemnts like presentation and also a detailed report. 
+---
+
+## Team
+
+**Supervisor:** Filippo Cenacchi — filippo.cenacchi@mq.edu.au
+
+| Member | Role |
+|--------|------|
+| Mahesh Sai Kandula | Technical Lead — Full system implementation |
+| David Kong | Research Lead — Literature, audit logger design |
+| Chirag Srinivasamurthy | AI/NLP — ClinicalBERT text extraction |
+| Damaranath Kokkula | Research — Domain research, Blender exploration |
+| Anil Kumar Varada | Analysis — Feature-to-mesh mapping concepts |
+
+**GitHub:** https://github.com/MSkandula/Disease-Progression-visuliazation.git
+
+---
+
+*COMP8851 S1 2026 — Macquarie University*

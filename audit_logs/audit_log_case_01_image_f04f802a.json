@@ -1,0 +1,103 @@
+{
+    "session_metadata": {
+        "session_id": "f04f802a-e253-42c3-b8bc-5ff883f1a5d6",
+        "patient_id": "case_01_image.jpg",
+        "start_time": "2026-06-04T09:26:41.563593+00:00",
+        "pipeline": "Organ Disease Progression Visualiser \u2014 COMP8851"
+    },
+    "events": [
+        {
+            "event_id": "6294be4a-c44c-4d17-850f-19b472b5af83",
+            "timestamp": "2026-06-04T09:26:41.570023+00:00",
+            "pipeline_stage": "1_CT_EXTRACTION",
+            "event_data": {
+                "image_path": "case_01_image.jpg",
+                "severity": 0.4201,
+                "texture": 0.1568,
+                "hdr": 0.1168,
+                "lung_pixel_count": 7937,
+                "extraction_method": "Otsu_threshold + connected_components"
+            }
+        },
+        {
+            "event_id": "a3367fc8-2976-4e7a-9bd0-ab0d4ced83c1",
+            "timestamp": "2026-06-04T09:26:41.570044+00:00",
+            "pipeline_stage": "2_FEATURE_MAPPING",
+            "event_data": {
+                "severity_norm": 0.772,
+                "texture_norm": 0.789,
+                "hdr_norm": 1.0,
+                "progression_score": 0.809,
+                "weighting": "0.65*severity + 0.20*texture + 0.15*hdr",
+                "derived_params": {
+                    "colour_strength": 1.006,
+                    "roughness_strength": 1.318,
+                    "lesion_spread": 2.4,
+                    "deformation_strength": 0.978
+                }
+            }
+        },
+        {
+            "event_id": "357bf4c0-580c-43d0-8435-3badb5f2be75",
+            "timestamp": "2026-06-04T09:26:42.073804+00:00",
+            "pipeline_stage": "3_STAGE_TRANSITION",
+            "event_data": {
+                "slider_t": 0.809,
+                "disease_stage": "Stage: Advanced Disease",
+                "active_effects": {
+                    "lesion_radius_multiplier": 6.152,
+                    "intensity_multiplier": 1.739,
+                    "deformation_multiplier": 0.885
+                },
+                "clinical_justification": "CT signals drive mesh at t=0.81: lesion radius 6.15x, tissue colour 1.74x, structural deformation 0.89."
+            }
+        },
+        {
+            "event_id": "ca9dba98-bbb7-4b2d-a991-1b54fae15558",
+            "timestamp": "2026-06-04T09:26:42.073825+00:00",
+            "pipeline_stage": "4_VERTEX_MODIFICATION",
+            "event_data": {
+                "slider_t": 0.809,
+                "affected_vertex_count": 264370,
+                "deformation_components": {
+                    "volume_loss_strength": 0.14165,
+                    "roughness_strength": 0.014,
+                    "basal_collapse": 0.07968
+                },
+                "mesh_region": "subpleural_basal_weighted",
+                "clinical_justification": "Vertex shifts represent fibrotic contraction (centre-pull), pleural surface indentation, and basal collapse \u2014 consistent with IPF morphology."
+            }
+        },
+        {
+            "event_id": "5b8de92e-d8c0-4ec5-8445-8b41b50d2768",
+            "timestamp": "2026-06-04T09:26:56.988674+00:00",
+            "pipeline_stage": "3_STAGE_TRANSITION",
+            "event_data": {
+                "slider_t": 0.571,
+                "disease_stage": "Stage: Moderate Disease",
+                "active_effects": {
+                    "lesion_radius_multiplier": 4.364,
+                    "intensity_multiplier": 1.197,
+                    "deformation_multiplier": 0.592
+                },
+                "clinical_justification": "CT signals drive mesh at t=0.57: lesion radius 4.36x, tissue colour 1.20x, structural deformation 0.59."
+            }
+        },
+        {
+            "event_id": "b9e13110-dad3-4da0-8b6f-27285341e321",
+            "timestamp": "2026-06-04T09:26:56.988702+00:00",
+            "pipeline_stage": "4_VERTEX_MODIFICATION",
+            "event_data": {
+                "slider_t": 0.571,
+                "affected_vertex_count": 264370,
+                "deformation_components": {
+                    "volume_loss_strength": 0.09478,
+                    "roughness_strength": 0.00937,
+                    "basal_collapse": 0.05331
+                },
+                "mesh_region": "subpleural_basal_weighted",
+                "clinical_justification": "Vertex shifts represent fibrotic contraction (centre-pull), pleural surface indentation, and basal collapse \u2014 consistent with IPF morphology."
+            }
+        }
+    ]
+}
